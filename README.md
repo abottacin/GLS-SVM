@@ -13,3 +13,5 @@ Two examples, stored in the directory *Case_studies*, are reported for showing t
 One of the case study is based on synthetic data, whereas the other is a real world example based on the calibration of a mass flow controller. 
 The GLS-SVM is compared with LS-SVM and with Gaussian Processes, the latter trained using the python library scikit-learn 1.7.2. The training datasets can be found 
 in the *Data* subfolders related to each case study.  
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20058869.svg)](https://doi.org/10.5281/zenodo.20058869)
