@@ -1,0 +1,46 @@
+function model_glssvm = glssvm_training(X, y, cov_matrix, kernel_pars, kernel_type)
+% glssvm_training performs the training of a GLS-SVM model.
+% 
+%   Description
+%       model_glssvm = glssvm_training(X, y, cov_matrix, kernel_pars, gam, kernel_type) performs the training 
+%       of a GLS-SVM starting from the input parameters consisting of: the covariance matrix of the response 
+%       variable; the kernel hyperparameters and the type of kernel. 
+% 
+%   Inputs
+%       X : matrix of training data corresponding to the d-dimensional independent variable (N x d)
+%       y : vector of data corresponding to the response variable (N x 1)
+%       cov_matrix: measurement covariance matrix associated with y ()
+%   Outputs
+%       X : vector of predictions (Npred x 1)
+%       y 
+
+
+N = size(X,1);
+
+model_glssvm.kernel_pars = kernel_pars;
+
+model_glssvm.X = X;
+
+model_glssvm.y = y;
+
+model_glssvm.Vy = cov_matrix;
+
+model_glssvm.Ktrain = K_matrix(X, kernel_type, kernel_pars); % kernel matrix over training data
+
+O = model_glssvm.Ktrain + cov_matrix; % Omega matrix
+
+nu = O\y; % auxiliary variable
+
+eta = O\ones(N,1); % auxiliary variable
+
+s_aux = ones(1,N)*eta; % auxiliary variable
+
+model_glssvm.b = eta'*y./s_aux; % bias
+
+model_glssvm.a = nu - eta*model_glssvm.b; % alpha
+
+model_glssvm.kernel_type = kernel_type;
+
+model_glssvm.Otrain = O;
+
+end

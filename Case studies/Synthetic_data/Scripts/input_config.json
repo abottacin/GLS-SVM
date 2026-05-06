@@ -1,0 +1,42 @@
+{
+  "dataset": {
+    "test_function": "lin+sine",
+    "sampling_type": "regular",
+    "n_train": 150,
+    "n_pred": 1000,
+    "n_samples": 600,
+    "index_sample": 30,
+    "noise": {
+      "min_sigma": 0.01,
+      "max_sigma": 1,
+      "noise_type": "linear"
+    },
+    "correlation": {
+      "length_scale": 50,
+      "corr_kernel": "exponential"
+    }
+  },
+  "svm_config": {
+    "svm_type": "f",
+    "svm_kernel_type": "RBF_kernel",
+    "n_train_iteration": 5,
+    "k_fold": 10,
+    "bayesian_optimization": {
+      "n_obj_eval": 100,
+      "n_seed_points":10,
+      "exploration_ratio": 0.7,
+      "parallel_flag": true,
+      "verbose": 0
+    }
+  },
+  "plot": {
+    "kf": 2,
+    "linewidth_value": 1.1,
+    "colors": {
+      "ls":        "#0072BD",
+      "gls":       "#77AC30",
+      "gp_homo":   "#EDB120",
+      "gp_hetero": "#7E2F8E" 
+    }
+  }
+}

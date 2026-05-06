@@ -1,0 +1,83 @@
+function [kernel_pars, best_cost, cv] = glssvm_bayesopt(X, y, cov_matrix, pars)
+% glssvm_bayesopt performs the tuning of the GLS-SVM kernel hyperparameters through Bayesian optimization. 
+% 
+%   Description
+%       [kernel_pars, best_cost, cv] = glssvm_bayesopt(x, y, cov_matrix, pars) performs 
+%       the bayesian optimization of the GLS-SVM kernel hyperparameters.  
+%       The problem to be minimized is a k-fold cross-validation functinon having values 
+%       corresponding to the (covariance-aware) generalized mean squared error (GMSE). 
+%  
+%   Inputs
+%       X            : matrix of training data corresponding to the d-dimensional independent variable (N x d)
+%       y            : vector of data corresponding to the response variable (N x 1)
+%       cov_matrix   : measurement covariance matrix associated with y (N x N)
+%       pars         : MATLAB structure storing all the parameters useful for the
+%                      bayesian optimization, which are: 
+%                           - pars.k_fold  -> number of folds for cross-validation
+%                           - pars.svm_kernel_type  -> chosen kernel for GLS-SVM
+%                           - pars.n_train_iteration -> number of times the optimization should be performed
+%                           - pars.n_obj_eval -> maximum number of evaluation of the objective function
+%                           - pars.n_seed_points -> number of initial evaluation points
+%                           - pars.verbose ->  value equal to 0 and 1 used to suppress or not the output of the optimization
+%                           - pars.exploration_ratio -> positive value associated to the propensity to explore the space of solutions
+%                           - pars.parallel_flag ->  boolean flag used to toggle the MATLAB Parallel Computing Toolbox
+%                   
+%   Outputs
+%       kernel_pars : vector of optimized kernel hyperparameters
+%       best_cost   : minimum value of the cross-validation function
+%       cv          : cross-validation partition
+% 
+
+
+% START BAYESIAN OPTMIZATION
+
+best_cost = inf;
+kernel_pars = [];
+
+rng(1)
+
+[objective_function_bayesopt, vars, initial_points, cv] = def_bayesopt_problem(X, y, cov_matrix, pars);
+
+for j = 1:pars.n_train_iteration
+
+    % Run bayesopt to find the optimal kernel parameters
+    % Options are passed as Name,Value pairs directly to bayesopt
+
+    rng(1)
+    
+    results = bayesopt(objective_function_bayesopt, vars, ...
+        'InitialX', initial_points, ...
+        'Verbose', pars.verbose, ...
+        'MaxObjectiveEvaluations', pars.n_obj_eval, ... % Max number of objective function evaluations (adjust as needed)
+        'IsObjectiveDeterministic', true, ...
+        'ExplorationRatio', pars.exploration_ratio, ...
+        'UseParallel', pars.parallel_flag, ... % Set to true if you have Parallel Computing Toolbox and want to speed up CV
+        'PlotFcn', []); % Plot objective substituting {@plotObjectiveModel}
+
+    % Extract the best parameters
+    min_gmse = results.MinObjective;
+    if pars.svm_kernel_type == "RBF_kernel"
+        optimized_pars = results.XAtMinObjective.sigma2;
+    elseif pars.svm_kernel_type == "poly_kernel"
+        optimized_pars = [results.XAtMinObjective.t, results.XAtMinObjective.d];
+    elseif pars.svm_kernel_type == "RBF2_kernel"
+        optimized_pars = [results.XAtMinObjective.A2, results.XAtMinObjective.sigma2];
+    end
+
+    fprintf('Training iteration: %d/%d\n', j,pars.n_train_iteration)
+    fprintf('Minimum GMSE: %.4f\n\n', min_gmse);
+
+    if  (min_gmse < best_cost) && (min_gmse > 0)
+        best_cost = min_gmse;
+        kernel_pars = optimized_pars;
+    end
+
+end
+
+if best_cost == inf
+    fprintf("Hyperparameter optimization failed")
+else
+    fprintf('Minimum GMSE found: %.4f\n\n', best_cost);
+end
+
+end

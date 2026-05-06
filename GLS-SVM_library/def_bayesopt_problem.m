@@ -1,0 +1,119 @@
+function [objective_function_bayesopt, vars, initial_points, cv] = def_bayesopt_problem(X, y, cov_matrix, pars)
+% def_bayesopt_problem defines the cross-validation function to optimize
+% 
+%   Description
+%       [objective_function_bayesopt, vars, initial_points, cv] = def_bayesopt_problem(x, y, cov_matrix, pars) 
+%       is a subroutine of glssvm_bayesopt used to define the k-fold cross-validation function
+%       to optimized based on the parameters passed to the function, in particular the kernel type. 
+%  
+%   Inputs
+%       X            : matrix of training data corresponding to the d-dimensional independent variable (N x d)
+%       y            : vector of data corresponding to the response variable (N x 1)
+%       cov_matrix   : measurement covariance matrix associated with y (N x N)
+%       pars         : MATLAB structure storing all the parameters useful for the
+%                      bayesian optimization, which are: 
+%                           - pars.k_fold  -> number of folds for cross-validation
+%                           - pars.svm_kernel_type  -> chosen kernel for GLS-SVM
+%                           - pars.n_train_iteration -> number of times the optimization should be performed
+%                           - pars.n_obj_eval -> maximum number of evaluation of the objective function
+%                           - pars.n_seed_points -> number of initial evaluation points
+%                           - pars.verbose ->  value equal to 0 and 1 used to suppress or not the output of the optimization
+%                           - pars.exploration_ratio -> positive value associated to the propensity to explore the space of solutions
+%                           - pars.parallel_flag ->  boolean flag used to toggle the MATLAB Parallel Computing Toolbox
+%                   
+%   Outputs
+%       objective_function_bayesopt : objective function to optimize
+%       vars                        : table in which are declared the variables to optimize 
+%                                     (the kernel hyperparameters) and the search bounds
+%       initial_points              : starting points for the evaluation of the objective functions
+%       cv                          : cross-validation partition
+
+rng(1)
+
+cv = cvpartition(size(X,1), 'KFold', pars.k_fold);
+
+
+if pars.svm_kernel_type == "RBF_kernel"
+
+    rng(1)
+
+    % Define the search space for Bayesian Optimization
+    % 'bayesopt' works directly with real-valued parameters, no need for log-space conversion within optimizableVariable
+    % However, it's good practice to define ranges that span orders of magnitude for sigma2.
+    vars = [
+        optimizableVariable('sigma2', [1e-3, 1e3], 'Type', 'real', 'Transform', 'log'); % Sigma2 range
+        ];
+    
+    % Define initial points as a table — must match variable names
+    p = sobolset(2);
+    sobol_points = net(p,pars.n_seed_points);
+  
+    sig2_vals = 10.^(log10(1e-3) + sobol_points(:,2)*(log10(1e3)-log10(1e-3)));
+
+    initial_points = table(sig2_vals, 'VariableNames',{'sigma2'});
+
+    % Define the objective function for bayesopt
+    objective_function_bayesopt = @(T) gmse_cv_rbf(...
+        T.sigma2, ... % Access sigma2 from the table
+        X, y, cov_matrix, pars.svm_kernel_type, cv);
+    fprintf("\nGLS-SVM: Bayesian Optimization-Covariance-Aware CV\n\n")
+
+elseif pars.svm_kernel_type == "poly_kernel"
+
+    rng(1)
+
+    % Define the search space for Bayesian Optimization
+    % 'bayesopt' works directly with real-valued parameters, no need for log-space conversion within optimizableVariable
+    % However, it's good practice to define ranges that span orders of magnitude for t and d.
+    vars = [
+        optimizableVariable('t', [1e-3, 1e3], 'Type', 'real', 'Transform', 'log'); % t range
+        optimizableVariable('d', [1e-3, 1e3], 'Type', 'real', 'Transform', 'log'); % t range
+        ];
+
+    % Define initial points as a table — must match variable names
+    p = sobolset(3);
+    sobol_points = net(p,pars.n_seed_points);
+  
+    t_vals = 10.^(log10(1e-3) + sobol_points(:,2)*(log10(1e3)-log10(1e-3)));
+    d_vals = 10.^(log10(1e-3) + sobol_points(:,3)*(log10(1e3)-log10(1e-3)));
+
+    initial_points = table(t_vals,d_vals, 'VariableNames',{'t','d'});
+
+    % Define the objective function for bayesopt
+    objective_function_bayesopt = @(T) gmse_cv_poly(...
+        T.t,T.d, ... % Access t and d from the table
+        X, y, cov_matrix, pars.svm_kernel_type, cv);
+    fprintf("\nGLS-SVM: Bayesian Optimization-Covariance-Aware CV\n\n")
+
+
+    elseif pars.svm_kernel_type == "RBF2_kernel"
+
+    rng(1)
+    
+    % Define the search space for Bayesian Optimization
+    % 'bayesopt' works directly with real-valued parameters, no need for log-space conversion within optimizableVariable
+    % However, it's good practice to define ranges that span orders of magnitude for A2 and sigma2.
+    vars = [
+        optimizableVariable('A2', [1e-3, 1e3], 'Type', 'real', 'Transform', 'log'); % t range
+        optimizableVariable('sigma2', [1e-3, 1e3], 'Type', 'real', 'Transform', 'log'); % t range
+        ];
+
+    % Define initial points as a table — must match variable names
+    p = sobolset(3);
+    sobol_points = net(p,pars.n_seed_points);
+  
+    A2_vals = 10.^(log10(1e-3) + sobol_points(:,2)*(log10(1e3)-log10(1e-3)));
+    sig2_vals = 10.^(log10(1e-3) + sobol_points(:,3)*(log10(1e3)-log10(1e-3)));
+
+    initial_points = table(A2_vals,sig2_vals, 'VariableNames',{'A2','sigma2'});
+
+    % Define the objective function for bayesopt
+
+    objective_function_bayesopt = @(T) gmse_cv_rbf2(...
+        T.A2,T.sigma2, ... % Access A2 and sigma2 from the table
+        X, y, cov_matrix, pars.svm_kernel_type, cv);
+    fprintf("\nGLS-SVM: Bayesian Optimization-Covariance-Aware CV\n\n")
+
+end
+
+end

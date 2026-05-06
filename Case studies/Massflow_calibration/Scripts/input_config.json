@@ -1,0 +1,28 @@
+{
+  "dataset": {
+    "n_pred": 1000
+  },
+  "svm_config": {
+    "svm_type": "f",
+    "svm_kernel_type": "poly_kernel",
+    "n_train_iteration": 1,
+    "k_fold": 6,
+    "bayesian_optimization": {
+      "n_obj_eval": 150,
+      "n_seed_points": 15,
+      "exploration_ratio": 0.7,
+      "parallel_flag": true,
+      "verbose": 0
+    }
+  },
+  "plot": {
+    "kf": 2,
+    "linewidth_value": 1.3,
+    "colors": {
+      "ls":        "#0072BD",
+      "gls":       "#77AC30",
+      "gp_homo":   "#EDB120",
+      "gp_hetero": "#7E2F8E" 
+    }
+  }
+}

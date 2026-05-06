@@ -1,0 +1,100 @@
+ EMRP NEW04 CCC Software: Release 1.3 
+  (programming language: MATLAB R2013a) 
+ 
+ Program identifier: 
+ 
+ EMRP NEWO4 CCC Software (Release 1.3)  
+ Authors: A Malengo, F Pennecchi, P Spazzini  
+ Istituto Nazionale di Ricerca Metrologica - INRIM, Italy 
+ Release Date: June 30, 2015 
+ Developed in the framework of WP1, EMRP Project NEW04 
+ Project financed by EURAMET 
+ 
+  Data identifier: 
+ 
+ Ordinary, weighted and weighted total least-squares method 
+ for fitting (fractional) polynomial curves to given data (x, y, Ux and Uy) 
+ according to models 1a, 1b, 2a, 2b, 3a and 3b defined in Deliverable 1.1.4 
+ 
+  Input data from File: C:\Users\a.bottacin\PhD\INRiM\Progetti\Generalized LS-SVM\Paper_Metrology\Case studies\Massflow_calibration\Data\CCC_data.xlsx 
+ 
+  Experimental data x and y 
+ 
+                  100		          0.848471993 
+                  200		          0.929624455 
+                  350		           0.96020425 
+                  600		          0.978664519 
+                  900		          0.988028148 
+                 1200		          0.995128408 
+                 1500		          0.996161038 
+    
+  Total experimental points no = 7 
+ 
+  Known covariance matrix associated with y: 
+ 
+           1.73536e-06	            1.14197e-08	            1.09667e-08	            1.08865e-08	            1.09154e-08	            1.10012e-08	            1.09857e-08 
+ 
+           1.14197e-08	            2.52618e-07	             1.1695e-08	            1.16095e-08	            1.16403e-08	            1.17318e-08	            1.17153e-08 
+ 
+           1.09667e-08	             1.1695e-08	            6.95875e-07	             1.1149e-08	            1.11785e-08	            1.12664e-08	            1.12505e-08 
+ 
+           1.08865e-08	            1.16095e-08	             1.1149e-08	            3.98522e-07	            1.10968e-08	             1.1184e-08	            1.11683e-08 
+ 
+           1.09154e-08	            1.16403e-08	            1.11785e-08	            1.10968e-08	            1.96636e-07	            1.12136e-08	            1.11979e-08 
+ 
+           1.10012e-08	            1.17318e-08	            1.12664e-08	             1.1184e-08	            1.12136e-08	            1.47365e-07	            1.12859e-08 
+ 
+           1.09857e-08	            1.17153e-08	            1.12505e-08	            1.11683e-08	            1.11979e-08	            1.12859e-08	            6.62637e-08 
+ 
+ Regression Model: Model 2a   
+
+ Fitted polynomial curve: y = a x^(-1) + b x^(-0.5) + c  + d x^0.5 + e x 
+ 
+  REGRESSION RESULTS: 
+ 
+a = -39.96659414	  u(a) = 4.312495847 
+b = 5.305832526	 	  u(b) = 0.9427037081 
+c = 0.6103696675	  u(c) = 0.07158888465 
+d = 0.01195172999	  u(d) = 0.002221978927 
+e = -0.0001248937568	  u(e) = 2.403615885e-05 
+      
+Chi square/(n-p) = 5.1166 
+ 
+ Covariance matrix associated with parameter estimates: 
+ 
+        +18.59762043 	        -4.046641909 	       +0.3038020209 	     -0.009289452367 	     +9.88273318e-05  
+ 
+        -4.046641909 	       +0.8886902812 	       -0.0672451445 	     +0.002068880601 	    -2.211536647e-05  
+ 
+       +0.3038020209 	       -0.0672451445 	     +0.005124968405 	    -0.0001586281782 	    +1.703986252e-06  
+ 
+     -0.009289452367 	     +0.002068880601 	    -0.0001586281782 	    +4.937190354e-06 	    -5.329131012e-08  
+ 
+     +9.88273318e-05 	    -2.211536647e-05 	    +1.703986252e-06 	    -5.329131012e-08 	    +5.777369322e-10  
+ 
+ Fitted values y 
+ 
+         0.8483149030 
+         0.9297599479 
+         0.9596716558 
+         0.9781885293 
+         0.9889709435 
+         0.9943779277 
+         0.9962691551 
+   
+ Covariance matrix associated with fitted values y: 
+ 
+    +1.726493372e-06 	     +2.04200643e-08 	     -4.55057528e-08 	    +3.515343912e-08 	     +2.03833476e-08 	    -4.180826311e-09 	    +1.364842613e-08  
+ 
+     +2.04200643e-08 	    +2.434047825e-07 	    +7.052455089e-08 	    -1.593781926e-08 	    +4.522883193e-09 	    +2.559383454e-08 	    +9.208460433e-09  
+ 
+     -4.55057528e-08 	    +7.052455089e-08 	    +3.068060462e-07 	    +2.226081615e-07 	    +2.280040358e-08 	    -5.518679525e-08 	    +2.438197853e-08  
+ 
+    +3.515343911e-08 	    -1.593781926e-08 	    +2.226081615e-07 	    +2.219444337e-07 	    +7.943131642e-08 	    -5.815537399e-09 	    +1.129129105e-08  
+ 
+     +2.03833476e-08 	    +4.522883191e-09 	    +2.280040358e-08 	    +7.943131641e-08 	     +1.05894211e-07 	    +7.751764661e-08 	    +2.014597158e-09  
+ 
+    -4.180826311e-09 	    +2.559383454e-08 	    -5.518679525e-08 	    -5.815537401e-09 	    +7.751764661e-08 	    +9.024947006e-08 	    +1.978391216e-08  
+ 
+    +1.364842613e-08 	     +9.20846043e-09 	    +2.438197853e-08 	    +1.129129104e-08 	    +2.014597156e-09 	    +1.978391216e-08 	    +6.496555239e-08  
+ 

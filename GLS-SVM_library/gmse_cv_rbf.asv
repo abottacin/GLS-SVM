@@ -1,0 +1,95 @@
+function avg_general_rmse = gmse_cv_rbf(sig2, X, Y, Uy, kernel_type, cv)
+% gmse_cv_rbf is the cross-validation function for an RBF kernel
+% 
+%   Description
+%       avg_general_rmse = gmse_cv_rbf(sig2, X, Y, Uy, kernel_type, cv) is
+%       the
+%       is a subroutine of glssvm_bayesopt used to define the k-fold cross-validation function
+%       to optimized based on the parameters passed to the function, in particular the kernel type. 
+%  
+%   Inputs
+%       X            : matrix of training data corresponding to the d-dimensional independent variable (N x d)
+%       y            : vector of data corresponding to the response variable (N x 1)
+%       cov_matrix   : measurement covariance matrix associated with y (N x N)
+%       pars         : MATLAB structure storing all the parameters useful for the
+%                      bayesian optimization, which are: 
+%                           - pars.k_fold  -> number of folds for cross-validation
+%                           - pars.svm_kernel_type  -> chosen kernel for GLS-SVM
+%                           - pars.n_train_iteration -> number of times the optimization should be performed
+%                           - pars.n_obj_eval -> maximum number of evaluation of the objective function
+%                           - pars.n_seed_points -> number of initial evaluation points
+%                           - pars.verbose ->  value equal to 0 and 1 used to suppress or not the output of the optimization
+%                           - pars.exploration_ratio -> positive value associated to the propensity to explore the space of solutions
+%                           - pars.parallel_flag ->  boolean flag used to toggle the MATLAB Parallel Computing Toolbox
+%                   
+%   Outputs
+%       objective_function_bayesopt : objective function to optimize
+%       vars                        : table in which are declared the variables to optimize 
+%                                     (the kernel hyperparameters) and the search bounds
+%       initial_points              : starting points for the evaluation of the objective functions
+%       cv                          : cross-validation partition
+
+
+rng("default") % For reproducibility
+
+k_fold = cv.NumTestSets;
+
+fold_gmse = zeros(k_fold, 1);
+    
+    for fold = 1:k_fold
+        % Get training and validation indices for the current fold
+        train_idx = cv.training(fold);
+        val_idx = cv.test(fold);
+        
+        X_train_fold = X(train_idx, :);
+        Y_train_fold = Y(train_idx);
+        Uy_train_fold = Uy(train_idx,train_idx);
+
+        N_fold = size(X_train_fold,1);
+        
+        X_val_fold = X(val_idx, :);
+        Y_val_fold = Y(val_idx);
+
+        N_val = size(X_val_fold,1);
+
+        Uy_val_fold = Uy(val_idx,val_idx);
+
+        % Train GLS-SVM model for this fold
+        
+        K_train_fold = K_matrix(X_train_fold, kernel_type, sig2); % kernel matrix over training data
+
+        O_fold = K_train_fold + Uy_train_fold; % Omega matrix
+
+        nu_fold = O_fold\Y_train_fold; % auxiliary variable
+
+        eta_fold = O_fold\ones(N_fold,1); % auxiliary variable
+
+        s_aux = ones(1,N_fold)*eta_fold; % auxiliary variable
+
+        b = eta_fold'*Y_train_fold./s_aux; % bias
+
+        a = nu_fold - eta_fold*b; % alpha
+        
+        K_val_fold = K_matrix(X_train_fold, kernel_type, sig2,X_val_fold); % kernel matrix over validation data
+        
+        Y_pred_val_fold = K_val_fold'*a + b; % Predictions
+
+        Uy_cross = Uy_val_fold;
+
+        try
+            % Use matrix left division for X \ Y which is equivalent to inv(X)*Y
+            % This is generally more numerically stable than explicit inv()
+             gmse =  1/N_val*(Y_val_fold - Y_pred_val_fold)'*(Uy_cross\(Y_val_fold - Y_pred_val_fold));
+        catch 
+            % Handle potential singularity (e.g., if Sigma_val_fold is ill-conditioned)
+            warning('Covariance matrix for fold %d is singular or ill-conditioned. Using pseudo-inverse.', fold);
+            gmse =  1/N_val*(Y_val_fold - Y_pred_val_fold)' * pinv(Uy_cross) * (Y_val_fold - Y_pred_val_fold);
+        end
+
+        fold_gmse(fold) = gmse; % Minimize NLL
+
+    end
+    
+    % Average GMSE across all folds
+    avg_general_rmse = mean(fold_gmse);
+end
