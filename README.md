@@ -7,7 +7,7 @@ The functions of the library allows to:
 * Perform predictions and evaluate the associated variance-covariance matrix;
 * Estimate the bias affecting the predictions to construct reliable confidence intervals.
 
-The library was developed by using MATLAB R2023b, using also the following toolboxes: Statistics and Machine Learning Toolbox and Parallel Computing Toolbox.
+The library was developed by using MATLAB R2023b and the following toolboxes: Statistics and Machine Learning Toolbox and Parallel Computing Toolbox.
 
 Two examples, stored in the directory *Case_studies*, are reported for showing the potential of GLS-SVM in comparison of other kernel-based methods.
 One of the case study is based on synthetic data, whereas the other is a real world example based on the calibration of a mass flow controller. 
